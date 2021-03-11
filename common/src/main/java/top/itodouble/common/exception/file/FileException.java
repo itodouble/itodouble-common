@@ -1,4 +1,4 @@
-package top.itodouble.common.file;
+package top.itodouble.common.exception.file;
 
 
 import top.itodouble.common.Base.BaseException;

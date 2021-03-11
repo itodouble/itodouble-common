@@ -2,9 +2,9 @@ package top.itodouble.common.utils.file;
 
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.web.multipart.MultipartFile;
-import top.itodouble.common.file.FileNameLengthLimitExceededException;
-import top.itodouble.common.file.FileSizeLimitExceededException;
-import top.itodouble.common.file.InvalidExtensionException;
+import top.itodouble.common.exception.file.FileNameLengthLimitExceededException;
+import top.itodouble.common.exception.file.FileSizeLimitExceededException;
+import top.itodouble.common.exception.file.InvalidExtensionException;
 import top.itodouble.common.utils.DateUtils;
 import top.itodouble.common.utils.StringUtils;
 import top.itodouble.common.utils.UuidUtils;
