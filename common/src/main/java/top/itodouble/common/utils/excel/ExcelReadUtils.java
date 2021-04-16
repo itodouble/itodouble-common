@@ -1,10 +1,8 @@
 package top.itodouble.common.utils.excel;
 
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.itodouble.common.pojo.excel.ExcelHeadVo;
@@ -29,7 +27,7 @@ public class ExcelReadUtils {
      * @return
      * @throws IOException
      */
-    public static List<Map<String, Object>> readStringExcelList(XSSFSheet sheet, List<ExcelHeadVo> excelHeadList, Integer dataStart, Integer dataEnd) throws IOException {
+    public static List<Map<String, Object>> readStringExcelList(Sheet sheet, List<ExcelHeadVo> excelHeadList, Integer dataStart, Integer dataEnd) throws IOException {
         List<Map<String, Object>> result = new ArrayList<>();
 
         Map<String, Object> map = null;
@@ -56,7 +54,7 @@ public class ExcelReadUtils {
                     if (row.getLastCellNum() <= (j + 1)) {
                         cell = row.getCell(j);
                         if (null != cell) {
-                            map.put(excelHeadVo.getKey(), getCellValue(cell));
+                            map.put(excelHeadVo.getKey(), CellValueUtils.getCellValue(cell));
                         }
                     }
                 }
@@ -66,28 +64,6 @@ public class ExcelReadUtils {
         return result;
     }
 
-    /**
-     * 获取单元格值
-     *
-     * @param cell
-     * @return
-     */
-    public static Object getCellValue(Cell cell) {
-        logger.debug("cell type:{}", cell.getCellTypeEnum());
-        if (cell.getCellTypeEnum() == CellType.NUMERIC) {
-            // 数字格式日期
-            if (HSSFDateUtil.isCellDateFormatted(cell)) {
-                return cell.getDateCellValue();
-            }
-            return cell.getNumericCellValue();
-        } else if (cell.getCellTypeEnum() == CellType.BOOLEAN) {
-            return cell.getBooleanCellValue();
-        } else if (cell.getCellTypeEnum() == CellType.FORMULA) {
-            logger.debug("cell FORMULA :{}", cell.getCellFormula());
-            return cell.getRichStringCellValue().getString();
-        }
-        return cell.getStringCellValue();
-    }
 
     /**
      * 检查excel标题
@@ -95,7 +71,7 @@ public class ExcelReadUtils {
      * @param sheet
      * @return
      */
-    public static Map<String, Object> checkExcelHeader(XSSFSheet sheet, List<ExcelHeadVo> excelHeadList, Integer headerIndex) throws IOException {
+    public static Map<String, Object> checkExcelHeader(Sheet sheet, List<ExcelHeadVo> excelHeadList, Integer headerIndex) throws IOException {
         List<String> errorMsg = new ArrayList<>();
         Row row = sheet.getRow(headerIndex);
         Boolean passFlag = true; // 全部检验通过

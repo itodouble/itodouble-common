@@ -2,23 +2,30 @@ package top.itodouble.common.utils.excel;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.itodouble.common.pojo.excel.ExcelHeadVo;
 import top.itodouble.common.utils.StringUtils;
 
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.*;
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class ExcelWriteUtils {
     private static Logger logger = LoggerFactory.getLogger(ExcelWriteUtils.class);
 
     /**
      * 生成excel
+     *
      * @param xssfSheet
      * @param dataList
      * @param excelHeadVoList
@@ -40,7 +47,38 @@ public class ExcelWriteUtils {
             for (int j = 0; j < excelHeadVoList.size(); j++) {
                 excelHeadVo = excelHeadVoList.get(j);
                 cell = row.createCell(j);
-                setCellValue(xssfSheet, cell, excelHeadVo.getCellDateType(), rowData.get(excelHeadVo.getKey()));
+                CellValueUtils.setCellValue(xssfSheet, cell, excelHeadVo.getCellDateType(), excelHeadVo.getCellStyle(), rowData.get(excelHeadVo.getKey()));
+            }
+        }
+        return xssfSheet;
+    }
+
+    public static XSSFSheet writeLine(XSSFSheet xssfSheet, List dataList, List<ExcelHeadVo> excelHeadVoList, Class clazz) throws IntrospectionException, InvocationTargetException, IllegalAccessException {
+        Row row = xssfSheet.createRow(0);
+        Cell cell;
+        ExcelHeadVo excelHeadVo;
+        Object rowData;
+        for (int i = 0; i < excelHeadVoList.size(); i++) {
+            cell = row.createCell(i);
+            cell.setCellType(CellType.STRING);
+            cell.setCellValue(excelHeadVoList.get(i).getName());
+        }
+        for (int i = 0; i < dataList.size(); i++) {
+            row = xssfSheet.createRow(i + 1);
+            rowData = dataList.get(i);
+            for (int j = 0; j < excelHeadVoList.size(); j++) {
+                excelHeadVo = excelHeadVoList.get(j);
+                cell = row.createCell(j);
+                Object val = null;
+                try {
+                    Method getSnMtd = new PropertyDescriptor(excelHeadVo.getKey(), clazz).getReadMethod();
+                    val = getSnMtd.invoke(rowData);
+                } catch (Exception e) {
+                    logger.error("key:" + excelHeadVo.getKey());
+                    logger.error("val:" + val);
+                    logger.error(e.getMessage(), e);
+                }
+                CellValueUtils.setCellValue(xssfSheet, cell, excelHeadVo.getCellDateType(), excelHeadVo.getCellStyle(), val);
             }
         }
         return xssfSheet;
@@ -72,7 +110,6 @@ public class ExcelWriteUtils {
         while (headRowIterator.hasNext()) {
             header.add(StringUtils.toString(headRowIterator.next()));
         }
-        Integer oldHeaderLength = header.size();
         for (int i = 0; i < excelHeadVoList.size(); i++) {
             headVo = excelHeadVoList.get(i);
             if (!header.contains(headVo)) {
@@ -88,49 +125,12 @@ public class ExcelWriteUtils {
                 headVo = excelHeadVoList.get(j);
                 if (!header.contains(headVo.getName())) {
                     xssfCell = xssfRow.createCell(j);
-                    setCellValue(xssfSheet,xssfCell, headVo.getCellDateType(), rowData.get(headVo.getKey()));
+                    CellValueUtils.setCellValue(xssfSheet, xssfCell, headVo.getCellDateType(), headVo.getCellStyle(), rowData.get(headVo.getKey()));
                 }
             }
         }
         return xssfSheet;
     }
 
-    public static void setCellValue(XSSFSheet xssfSheet, Cell cell, CellType cellType, Object val) {
-        logger.debug(cell.toString());
-        cell.setCellType(cellType);
-        if (null != val) {
-            if (cellType == CellType.NUMERIC) {
-                if (val instanceof Date || val instanceof Timestamp || val instanceof java.sql.Date || val instanceof Time) {
-                    XSSFCellStyle cellStyle = xssfSheet.getWorkbook().createCellStyle();
-                    XSSFDataFormat format = xssfSheet.getWorkbook().createDataFormat();
-                    cellStyle.setDataFormat(format.getFormat("yyyy-m-d"));
-                    cell.setCellStyle(cellStyle);
-                    if (val instanceof Date) {
-                        cell.setCellValue((Date) val);
-                    } else if (val instanceof Timestamp) {
-                        cell.setCellValue((Timestamp) val);
-                    } else if (val instanceof java.sql.Date) {
-                        cell.setCellValue((java.sql.Date) val);
-                    } else if (val instanceof Time) {
-                        cell.setCellValue((Time) val);
-                    }
 
-                } else {
-                    if (val instanceof Integer) {
-                        cell.setCellValue((Integer) val);
-                    } else if (val instanceof String) {
-                        cell.setCellValue((String) val);
-                    } else {
-                        cell.setCellValue(Double.parseDouble(val.toString()));
-                    }
-                }
-            } else if (cellType == CellType.FORMULA) {
-                cell.setCellValue((RichTextString) val);
-            } else if (cellType == CellType.BOOLEAN) {
-                cell.setCellValue((Boolean) val);
-            } else {
-                cell.setCellValue((String) val);
-            }
-        }
-    }
 }

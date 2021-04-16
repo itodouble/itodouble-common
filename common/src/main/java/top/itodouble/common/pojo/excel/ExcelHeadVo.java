@@ -1,6 +1,7 @@
 package top.itodouble.common.pojo.excel;
 
 
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 
 import java.io.Serializable;
@@ -22,6 +23,16 @@ public class ExcelHeadVo implements Serializable  {
      */
     private CellType cellDateType;
 
+    /**
+     * 单元格表头样式
+     */
+    private CellStyle cellHeadStyle;
+
+    /**
+     * 单元格样式
+     */
+    private CellStyle cellStyle;
+
     public ExcelHeadVo() {
     }
 
@@ -29,6 +40,13 @@ public class ExcelHeadVo implements Serializable  {
         this.name = name;
         this.key = key;
         this.cellDateType = cellDateType;
+    }
+
+    public ExcelHeadVo(String name, String key, CellType cellDateType, CellStyle cellStyle) {
+        this.name = name;
+        this.key = key;
+        this.cellDateType = cellDateType;
+        this.cellStyle = cellStyle;
     }
 
     /**
@@ -71,5 +89,33 @@ public class ExcelHeadVo implements Serializable  {
      */
     public void setCellDateType(CellType cellDateType) {
         this.cellDateType = cellDateType;
+    }
+
+    /**
+     * @return cellStyle 单元格样式
+     */
+    public CellStyle getCellStyle() {
+        return this.cellStyle;
+    }
+
+    /**
+     * @param cellStyle 单元格样式
+     */
+    public void setCellStyle(CellStyle cellStyle) {
+        this.cellStyle = cellStyle;
+    }
+
+    /**
+     * @return cellHeadStyle 单元格表头样式
+     */
+    public CellStyle getCellHeadStyle() {
+        return this.cellHeadStyle;
+    }
+
+    /**
+     * @param cellHeadStyle 单元格表头样式
+     */
+    public void setCellHeadStyle(CellStyle cellHeadStyle) {
+        this.cellHeadStyle = cellHeadStyle;
     }
 }
