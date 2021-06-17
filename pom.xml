@@ -11,6 +11,7 @@
   <modules>
     <module>common</module>
     <module>common-redis</module>
+    <module>common-redis-nacos</module>
     <module>common-swagger</module>
   </modules>
 
